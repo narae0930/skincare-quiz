@@ -14,12 +14,13 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
-        body { font-family: 'Noto Sans KR', sans-serif; }
+        body { font-family: 'Noto Sans KR', sans-serif; -webkit-tap-highlight-color: transparent; }
         .animate-bounce { animation: bounce 1s infinite; }
         @keyframes bounce {
             0%, 100% { transform: translateY(-5%); animation-timing-function: cubic-bezier(0.8, 0, 1, 1); }
             50% { transform: translateY(0); animation-timing-function: cubic-bezier(0, 0, 0.2, 1); }
         }
+        .quiz-container { min-height: 500px; }
     </style>
 </head>
 <body class="bg-pink-50">
@@ -28,45 +29,32 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // 아이콘 컴포넌트 유틸리티 (오류 수정 버전)
+        // 아이콘 컴포넌트 유틸리티
         const Icon = ({ name, size = 20, className = "" }) => {
             const iconRef = useRef(null);
-            
             useEffect(() => {
                 if (window.lucide && iconRef.current) {
                     iconRef.current.innerHTML = `<i data-lucide="${name}"></i>`;
                     window.lucide.createIcons({
                         root: iconRef.current,
-                        attrs: {
-                            width: size,
-                            height: size,
-                            class: className
-                        }
+                        attrs: { width: size, height: size, class: className }
                     });
                 }
             }, [name, size, className]);
-
             return <span ref={iconRef} className="inline-flex items-center justify-center"></span>;
         };
 
-        // 올린 머리 캐릭터 컴포넌트
+        // 피드백 캐릭터 컴포넌트 (위치 조정됨: 해설지를 가리지 않고 버튼 영역을 가리도록 상향 배치)
         const UpdoCharacter = ({ isCorrect }) => (
-            <div className="absolute -bottom-4 right-4 md:right-10 flex flex-col items-center z-20 pointer-events-none transition-all duration-500 transform translate-y-0 opacity-100">
-                <div className={`relative px-5 py-3 rounded-2xl shadow-xl border-2 font-black text-lg md:text-xl whitespace-nowrap mb-2 animate-bounce ${isCorrect ? 'bg-white border-pink-400 text-pink-600' : 'bg-slate-800 border-slate-600 text-white'}`}>
+            <div className="absolute top-[45%] right-2 md:right-8 flex flex-col items-center z-50 pointer-events-none transition-all duration-500 transform -translate-y-1/2 opacity-100">
+                <div className={`relative px-5 py-3 rounded-2xl shadow-2xl border-2 font-black text-lg md:text-xl whitespace-nowrap mb-2 animate-bounce ${isCorrect ? 'bg-white border-pink-400 text-pink-600' : 'bg-slate-800 border-slate-600 text-white'}`}>
                     {isCorrect ? "그렇지~~~ 잘했어! ✨" : "아~~~니~~~ 💢"}
                     <div className={`absolute -bottom-2.5 right-1/2 translate-x-1/2 w-5 h-5 border-b-2 border-r-2 transform rotate-45 ${isCorrect ? 'bg-white border-pink-400' : 'bg-slate-800 border-slate-600'}`}></div>
                 </div>
-                
-                <svg width="120" height="120" viewBox="0 0 130 130" className="drop-shadow-2xl">
+                <svg width="140" height="140" viewBox="0 0 130 130" className="drop-shadow-2xl">
                     <defs>
-                        <linearGradient id="naraeHair" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" style={{stopColor:'#795548', stopOpacity:1}} />
-                            <stop offset="100%" style={{stopColor:'#4E342E', stopOpacity:1}} />
-                        </linearGradient>
-                        <linearGradient id="naraeSkin" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" style={{stopColor:'#FFF3E0', stopOpacity:1}} />
-                            <stop offset="100%" style={{stopColor:'#FFE0B2', stopOpacity:1}} />
-                        </linearGradient>
+                        <linearGradient id="naraeHair" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style={{stopColor:'#795548', stopOpacity:1}} /><stop offset="100%" style={{stopColor:'#4E342E', stopOpacity:1}} /></linearGradient>
+                        <linearGradient id="naraeSkin" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style={{stopColor:'#FFF3E0', stopOpacity:1}} /><stop offset="100%" style={{stopColor:'#FFE0B2', stopOpacity:1}} /></linearGradient>
                     </defs>
                     <circle cx="65" cy="75" r="32" fill="url(#naraeHair)" />
                     <circle cx="65" cy="80" r="28" fill="url(#naraeSkin)" stroke="#FFCC80" strokeWidth="1"/>
@@ -75,23 +63,17 @@
                     <g>
                         {isCorrect ? (
                             <>
-                                <circle cx="53" cy="80" r="4" fill="#3E2723" />
-                                <circle cx="77" cy="80" r="4" fill="#3E2723" />
-                                <circle cx="51" cy="78" r="1.5" fill="white" />
-                                <circle cx="75" cy="78" r="1.5" fill="white" />
+                                <circle cx="53" cy="80" r="4" fill="#3E2723" /><circle cx="77" cy="80" r="4" fill="#3E2723" />
+                                <circle cx="51" cy="78" r="1.5" fill="white" /><circle cx="75" cy="78" r="1.5" fill="white" />
                                 <path d="M 58 92 Q 65 98 72 92" stroke="#D81B60" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-                                <ellipse cx="48" cy="88" rx="6" ry="3" fill="#FFAB91" opacity="0.8" />
-                                <ellipse cx="82" cy="88" rx="6" ry="3" fill="#FFAB91" opacity="0.8" />
+                                <ellipse cx="48" cy="88" rx="6" ry="3" fill="#FFAB91" opacity="0.8" /><ellipse cx="82" cy="88" rx="6" ry="3" fill="#FFAB91" opacity="0.8" />
                             </>
                         ) : (
                             <>
-                                <path d="M 48 72 L 58 76" stroke="#3E2723" strokeWidth="2" strokeLinecap="round" />
-                                <path d="M 72 76 L 82 72" stroke="#3E2723" strokeWidth="2" strokeLinecap="round" />
-                                <path d="M 50 82 Q 53 78 56 82" stroke="#3E2723" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-                                <path d="M 74 82 Q 77 78 80 82" stroke="#3E2723" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+                                <path d="M 48 72 L 58 76" stroke="#3E2723" strokeWidth="2" strokeLinecap="round" /><path d="M 72 76 L 82 72" stroke="#3E2723" strokeWidth="2" strokeLinecap="round" />
+                                <path d="M 50 82 Q 53 78 56 82" stroke="#3E2723" strokeWidth="2.5" fill="none" strokeLinecap="round" /><path d="M 74 82 Q 77 78 80 82" stroke="#3E2723" strokeWidth="2.5" fill="none" strokeLinecap="round" />
                                 <path d="M 58 96 Q 65 88 72 96" stroke="#D81B60" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-                                <ellipse cx="48" cy="88" rx="5" ry="2" fill="#90A4AE" opacity="0.3" />
-                                <ellipse cx="82" cy="88" rx="5" ry="2" fill="#90A4AE" opacity="0.3" />
+                                <ellipse cx="48" cy="88" rx="5" ry="2" fill="#90A4AE" opacity="0.3" /><ellipse cx="82" cy="88" rx="5" ry="2" fill="#90A4AE" opacity="0.3" />
                             </>
                         )}
                     </g>
@@ -111,7 +93,7 @@
             const [quizFinished, setQuizFinished] = useState(false);
             const [showHint, setShowHint] = useState(false);
 
-            const rawData = [
+             const rawData = [
                 // --- EASY 정상피부 ---
                 { difficulty: 'EASY', answer: '정상피부', text: '적당한 수분과 유분을 가지고 있어 피부표면이 촉촉하고 매끄럽고 윤기가 있다.', hint: '가장 이상적인 유수분 밸런스를 가진 상태입니다.', explanation: '피지선과 한선의 기능이 원활하여 피부 결이 매끄럽고 촉촉한 상태를 유지합니다.' },
                 { difficulty: 'EASY', answer: '정상피부', text: '세안 후 당기거나 번들거림이 없다.', hint: '세안 직후 자극이 거의 없는 건강한 상태입니다.', explanation: '피부 보호막이 견고하여 외부 자극이나 수분 손실에 저항력이 강합니다.' },
@@ -222,21 +204,33 @@
                 { difficulty: 'HARD', answer: '건성피부', text: '각질과 소양감이 있으며 표피의 심한 건조도에 비해 늘어짐은 심하지 않다.', hint: '가려움증과 당김이 주된 증상인 건성 타입입니다.', explanation: '심각한 수분 부족으로 인해 가려움(소양감)이 발생하지만, 아직 진피 탄력은 유지되는 과도기적 상태입니다.' },
                 { difficulty: 'HARD', answer: '정상피부', text: '소릉이 얇고 피부결이 섬세하며 탄력성이 있고 모공이 작으며 모세혈관이 붉으스름하다.', hint: '건강함이 시각적으로 표현된 고난도 지문입니다.', explanation: '섬세한 결과 탄력, 그리고 건강한 순환을 의미하는 붉으스름한 혈색의 조화를 설명합니다.' }
             ];
+            const shuffle = (array) => {
+                let currentIndex = array.length, randomIndex;
+                while (currentIndex !== 0) {
+                    randomIndex = Math.floor(Math.random() * currentIndex);
+                    currentIndex--;
+                    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+                }
+                return array;
+            };
 
             const startQuiz = (level) => {
-                // 선택한 난이도 문제 우선 필터링
-                const primaryPool = rawData.filter(q => q.difficulty === level);
-                // 부족할 경우 채울 나머지 문제들
-                const secondaryPool = rawData.filter(q => q.difficulty !== level);
-                
-                // 외부 자료 없이 기존 80여개 문제 내에서 10개를 무작위 추출 (선택 난이도 우선 배치)
-                const combinedPool = [
-                    ...primaryPool.sort(() => Math.random() - 0.5),
-                    ...secondaryPool.sort(() => Math.random() - 0.5)
-                ];
-                const selectedQuestions = combinedPool.slice(0, 10);
-                
-                setQuestions(selectedQuestions);
+                let pool = rawData.filter(q => q.difficulty === level);
+                if (pool.length < 10) {
+                    const others = rawData.filter(q => q.difficulty !== level);
+                    pool = [...pool, ...others];
+                }
+                const shuffledPool = shuffle([...pool]);
+                const uniqueQuestions = [];
+                const seenTexts = new Set();
+                for (const q of shuffledPool) {
+                    if (!seenTexts.has(q.text)) {
+                        uniqueQuestions.push(q);
+                        seenTexts.add(q.text);
+                    }
+                    if (uniqueQuestions.length === 10) break;
+                }
+                setQuestions(uniqueQuestions);
                 setDifficulty(level);
                 setMode('quiz');
                 setCurrentQuestionIndex(0);
@@ -314,24 +308,15 @@
                                         } ${selectedAnswer !== null ? 'opacity-50 cursor-not-allowed' : ''}`}
                                     >
                                         <Icon name="lightbulb" size={16} />
-                                        {showHint ? '힌트 닫기' : '결정적 힌트 보기'}
+                                        {showHint ? '힌트 닫기' : '힌트 보기'}
                                     </button>
                                 </div>
 
-                                <div className="bg-white p-8 rounded-2xl shadow-lg border border-pink-100 mb-6 relative min-h-[400px]">
+                                <div className="bg-white p-8 rounded-2xl shadow-lg border border-pink-100 mb-6 relative quiz-container overflow-hidden">
                                     <h3 className="text-sm text-pink-400 mb-4 uppercase tracking-wider font-bold">Question</h3>
-                                    <p className="text-2xl font-bold text-slate-800 leading-relaxed mb-8 italic relative z-10">
+                                    <p className="text-xl md:text-2xl font-bold text-slate-800 leading-relaxed mb-8 italic relative z-10">
                                         "{questions[currentQuestionIndex].text}"
                                     </p>
-
-                                    {showHint && selectedAnswer === null && (
-                                        <div className="mb-8 p-4 bg-pink-50 border-2 border-pink-200 rounded-xl relative z-10 shadow-sm">
-                                            <p className="text-base text-pink-700 leading-relaxed font-bold flex gap-2 items-start">
-                                                <Icon name="lightbulb" size={20} className="shrink-0 mt-1" />
-                                                <span>{questions[currentQuestionIndex].hint}</span>
-                                            </p>
-                                        </div>
-                                    )}
 
                                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 relative z-10">
                                         {['정상피부', '건성피부', '지성피부'].map((choice) => {
@@ -352,18 +337,31 @@
                                         })}
                                     </div>
 
-                                    {selectedAnswer !== null && (
-                                        <div className="p-5 bg-pink-50 border border-pink-200 rounded-2xl relative z-10">
-                                            <div className="flex items-center gap-2 text-pink-700 mb-2 font-bold">
-                                                <Icon name="info" size={18} />
-                                                해설 및 정답의 근거
-                                            </div>
-                                            <p className="text-slate-700 leading-relaxed text-sm w-full md:w-3/4">
-                                                {questions[currentQuestionIndex].explanation}
+                                    {/* 힌트 및 피드백 메시지 영역 */}
+                                    {showHint && selectedAnswer === null && (
+                                        <div className="mb-8 p-4 bg-pink-50 border-2 border-pink-200 rounded-xl relative z-10 shadow-sm animate-in fade-in duration-300">
+                                            <p className="text-base text-pink-700 leading-relaxed font-bold flex gap-2 items-start">
+                                                <Icon name="lightbulb" size={20} className="shrink-0 mt-1" />
+                                                <span>지문의 특징(모공 크기, 유분감, 수분 함량 등)을 다시 한번 꼼꼼히 읽어보세요!</span>
                                             </p>
                                         </div>
                                     )}
 
+                                    {selectedAnswer !== null && (
+                                        <div className="p-5 bg-pink-50 border border-pink-200 rounded-2xl relative z-10 animate-in slide-in-from-bottom-2">
+                                            <div className="flex items-center gap-2 text-pink-700 mb-2 font-bold">
+                                                <Icon name="info" size={18} />
+                                                정답 확인
+                                            </div>
+                                            <p className="text-slate-700 leading-relaxed text-sm w-full md:w-3/4">
+                                                {selectedAnswer === questions[currentQuestionIndex].answer 
+                                                    ? "완벽한 판단입니다! 해당 지문은 정답인 피부 유형의 핵심적인 특징을 잘 설명하고 있습니다." 
+                                                    : `아쉽습니다. 정답은 '${questions[currentQuestionIndex].answer}'입니다. 지문에 언급된 특징을 다시 한번 확인해 보세요.`}
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {/* 피드백 캐릭터: 해설지를 가리지 않도록 상향 배치 (중앙 버튼 영역 위치) */}
                                     {answerStatus !== null && (
                                         <UpdoCharacter isCorrect={answerStatus === 'correct'} />
                                     )}
