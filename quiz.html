@@ -26,16 +26,29 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useRef } = React;
 
-        // 아이콘 컴포넌트 유틸리티
+        // 아이콘 컴포넌트 유틸리티 (오류 수정 버전)
         const Icon = ({ name, size = 20, className = "" }) => {
+            const iconRef = useRef(null);
+            
             useEffect(() => {
-                if (window.lucide) {
-                    window.lucide.createIcons();
+                if (window.lucide && iconRef.current) {
+                    // React의 Virtual DOM과 Lucide의 직접적인 DOM 조작 간의 충돌을 방지하기 위해
+                    // innerHTML을 초기화하고 지정된 ref 노드 내에서만 아이콘을 생성합니다.
+                    iconRef.current.innerHTML = `<i data-lucide="${name}"></i>`;
+                    window.lucide.createIcons({
+                        root: iconRef.current,
+                        attrs: {
+                            width: size,
+                            height: size,
+                            class: className
+                        }
+                    });
                 }
-            }, [name]);
-            return <i data-lucide={name} style={{ width: size, height: size }} className={className}></i>;
+            }, [name, size, className]);
+
+            return <span ref={iconRef} className="inline-flex items-center justify-center"></span>;
         };
 
         // 올린 머리 캐릭터 컴포넌트
